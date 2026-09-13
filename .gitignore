@@ -1,0 +1,32 @@
+# IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Maven
+target/
+
+# Java
+*.class
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Temporary files
+tmp/
+temp/
+
+# Spring
+spring.log

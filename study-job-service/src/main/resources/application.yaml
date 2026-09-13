@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: study-job-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5440/study_delivery
+    username: study_user
+    password: study_password
+    driver-class-name: org.postgresql.Driver
+
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 7070
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
