@@ -37,4 +37,12 @@ public class GlobalExceptionHandler {
         ApiError error = new ApiError(OffsetDateTime.now(), HttpStatus.CONFLICT.value(), "BUSINESS_DUPLICATE", exception.getMessage(), request.getRequestURI());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
+
+    @ExceptionHandler(InvalidJobStateTransitionException.class)
+    public ResponseEntity<ApiError> handleInvalidJobStateTransition(InvalidJobStateTransitionException exception, HttpServletRequest request) {
+
+        ApiError error = new ApiError(OffsetDateTime.now(), HttpStatus.CONFLICT.value(), "INVALID_JOB_STATE_TRANSITION", exception.getMessage(), request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }
