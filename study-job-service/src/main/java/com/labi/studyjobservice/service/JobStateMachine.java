@@ -25,7 +25,7 @@ public class JobStateMachine {
         }
     }
 
-    public void transition(StudyJob job, JobStatus target) {
+    public JobStatus transition(StudyJob job, JobStatus target) {
 
         JobStatus current = job.getStatus();
 
@@ -33,6 +33,7 @@ public class JobStateMachine {
 
         job.setStatus(target);
         job.setUpdatedAt(OffsetDateTime.now());
+        return current;
     }
 
     private Map<JobStatus, Set<JobStatus>> createTransitions() {

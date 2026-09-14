@@ -2,6 +2,8 @@ package com.labi.studyjobservice.service;
 
 import com.labi.studyjobservice.dto.CreateStudyJobRequest;
 import com.labi.studyjobservice.dto.StudyJobResponse;
+import com.labi.studyjobservice.entity.JobStatus;
+import com.labi.studyjobservice.entity.StatusChangedBy;
 import com.labi.studyjobservice.entity.StudyJob;
 import com.labi.studyjobservice.exception.BusinessDuplicateException;
 import com.labi.studyjobservice.exception.IdempotencyConflictException;
@@ -25,11 +27,13 @@ public class StudyJobService {
     private final StudyJobRepository studyJobRepository;
     private final StudyJobCreator studyJobCreator;
     private final CustomerStudyRepository customerStudyRepository;
+    private final JobTransitionService jobTransitionService;
 
-    public StudyJobService(StudyJobRepository studyJobRepository, StudyJobCreator studyJobCreator, CustomerStudyRepository customerStudyRepository) {
+    public StudyJobService(StudyJobRepository studyJobRepository, StudyJobCreator studyJobCreator, CustomerStudyRepository customerStudyRepository, JobTransitionService jobTransitionService) {
         this.studyJobRepository = studyJobRepository;
         this.studyJobCreator = studyJobCreator;
         this.customerStudyRepository = customerStudyRepository;
+        this.jobTransitionService = jobTransitionService;
     }
 
     private String generateRequestHash(String customerId, CreateStudyJobRequest request, String idempotencyKey) {
@@ -99,6 +103,7 @@ public class StudyJobService {
 
         try {
             StudyJob studyJob = studyJobCreator.create(customerId, idempotencyKey, request, requestHash);
+            jobTransitionService.transition(studyJob, JobStatus.QUEUED, StatusChangedBy.STUDY_JOB_SERVICE,"Job accepted and queued for Taskflow execution" );
             return toResponse(studyJob, "Study job accepted");
 
 
