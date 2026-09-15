@@ -18,7 +18,7 @@ public class StudyJobCreator {
         this.studyJobRepository = studyJobRepository;
     }
 
-    @Transactional
+
     public StudyJob create(String customerId, String idempotencyKey, CreateStudyJobRequest request, String requestHash) {
         OffsetDateTime now = OffsetDateTime.now();
         StudyJob job = new StudyJob();

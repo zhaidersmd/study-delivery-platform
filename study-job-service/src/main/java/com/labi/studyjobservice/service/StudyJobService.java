@@ -28,12 +28,14 @@ public class StudyJobService {
     private final StudyJobCreator studyJobCreator;
     private final CustomerStudyRepository customerStudyRepository;
     private final JobTransitionService jobTransitionService;
+    private final OutboxEventService outboxEventService;
 
-    public StudyJobService(StudyJobRepository studyJobRepository, StudyJobCreator studyJobCreator, CustomerStudyRepository customerStudyRepository, JobTransitionService jobTransitionService) {
+    public StudyJobService(StudyJobRepository studyJobRepository, StudyJobCreator studyJobCreator, CustomerStudyRepository customerStudyRepository, JobTransitionService jobTransitionService, OutboxEventService outboxEventService) {
         this.studyJobRepository = studyJobRepository;
         this.studyJobCreator = studyJobCreator;
         this.customerStudyRepository = customerStudyRepository;
         this.jobTransitionService = jobTransitionService;
+        this.outboxEventService = outboxEventService;
     }
 
     private String generateRequestHash(String customerId, CreateStudyJobRequest request, String idempotencyKey) {
@@ -73,7 +75,7 @@ public class StudyJobService {
         return toResponse(job, "Existing idempotent request");
     }
 
-
+    @Transactional
     public StudyJobResponse createJob(String customerId, String idempotencyKey, CreateStudyJobRequest request) {
 
         boolean authorized = customerStudyRepository.isStudyAuthorized(customerId, request.studyId());
@@ -104,6 +106,14 @@ public class StudyJobService {
         try {
             StudyJob studyJob = studyJobCreator.create(customerId, idempotencyKey, request, requestHash);
             jobTransitionService.transition(studyJob, JobStatus.QUEUED, StatusChangedBy.STUDY_JOB_SERVICE,"Job accepted and queued for Taskflow execution" );
+            outboxEventService.createStudyJobRequestedEvent(
+                    studyJob.getId(),
+                    studyJob.getCustomerId(),
+                    studyJob.getDeliveryId(),
+                    studyJob.getRecipientId(),
+                    studyJob.getStudyId(),
+                    studyJob.getIdempotencyKey()
+            );
             return toResponse(studyJob, "Study job accepted");
 
 
@@ -154,6 +164,28 @@ public class StudyJobService {
 
     }
 
+    @Transactional
+    public void markJobStarted(
+            UUID jobId,
+            String informaticaRunId) {
+
+        StudyJob job =
+                studyJobRepository.findById(jobId)
+                        .orElseThrow(() ->
+                                new JobNotFoundException(
+                                        "Job not found: " + jobId
+                                )
+                        );
+        job.setInformaticaRunId(informaticaRunId);
+        studyJobRepository.save(job);
+        jobTransitionService.transition(
+                job,
+                JobStatus.RUNNING,
+                StatusChangedBy.TASKFLOW_SERVICE,
+                "Informatica Taskflow started. Run ID: "
+                        + informaticaRunId
+        );
+    }
 
 }
 

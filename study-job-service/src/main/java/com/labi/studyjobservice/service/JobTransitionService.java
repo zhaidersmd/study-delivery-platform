@@ -25,7 +25,7 @@ public class JobTransitionService {
         this.stateMachine = stateMachine;
     }
 
-    @Transactional
+
     public void transition(StudyJob job, JobStatus target, StatusChangedBy changedBy, String reason) {
         JobStatus oldStatus = stateMachine.transition(job, target);
         studyJobRepository.save(job);
