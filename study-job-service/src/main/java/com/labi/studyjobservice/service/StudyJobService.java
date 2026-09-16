@@ -105,7 +105,7 @@ public class StudyJobService {
 
         try {
             StudyJob studyJob = studyJobCreator.create(customerId, idempotencyKey, request, requestHash);
-            jobTransitionService.transition(studyJob, JobStatus.QUEUED, StatusChangedBy.STUDY_JOB_SERVICE,"Job accepted and queued for Taskflow execution" );
+            jobTransitionService.transition(studyJob, JobStatus.QUEUED, StatusChangedBy.STUDY_JOB_SERVICE, "Job accepted and queued for Taskflow execution");
             outboxEventService.createStudyJobRequestedEvent(
                     studyJob.getId(),
                     studyJob.getCustomerId(),
@@ -184,6 +184,59 @@ public class StudyJobService {
                 StatusChangedBy.TASKFLOW_SERVICE,
                 "Informatica Taskflow started. Run ID: "
                         + informaticaRunId
+        );
+    }
+
+    @Transactional
+    public void markJobCompleted(
+            UUID jobId,
+            String informaticaRunId) {
+
+        StudyJob job =
+                studyJobRepository.findById(jobId)
+                        .orElseThrow(() ->
+                                new JobNotFoundException(
+                                        "Job not found: " + jobId
+                                )
+                        );
+
+        job.setInformaticaRunId(informaticaRunId);
+
+        jobTransitionService.transition(
+                job,
+                JobStatus.COMPLETED,
+                StatusChangedBy.TASKFLOW_SERVICE,
+                "Informatica Taskflow completed. Run ID: "
+                        + informaticaRunId
+        );
+    }
+
+    @Transactional
+    public void markJobFailed(
+            UUID jobId,
+            String informaticaRunId,
+            String failureReason) {
+
+        StudyJob job =
+                studyJobRepository.findById(jobId)
+                        .orElseThrow(() ->
+                                new JobNotFoundException(
+                                        "Job not found: " + jobId
+                                )
+                        );
+
+        job.setInformaticaRunId(informaticaRunId);
+        job.setFailureReason(failureReason);
+
+        jobTransitionService.transition(
+                job,
+                JobStatus.FAILED,
+                StatusChangedBy.TASKFLOW_SERVICE,
+                "Informatica Taskflow failed. "
+                        + "Run ID: "
+                        + informaticaRunId
+                        + ". Reason: "
+                        + failureReason
         );
     }
 
