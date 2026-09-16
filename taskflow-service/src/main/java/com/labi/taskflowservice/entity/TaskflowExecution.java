@@ -49,4 +49,9 @@ public class TaskflowExecution {
         this.status = TaskflowExecutionStatus.FAILED;
         this.updatedAt = OffsetDateTime.now();
     }
+
+    public void markCompleted() {
+        this.status = TaskflowExecutionStatus.COMPLETED;
+        this.updatedAt = OffsetDateTime.now();
+    }
 }

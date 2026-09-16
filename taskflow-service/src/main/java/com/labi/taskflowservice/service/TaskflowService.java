@@ -23,7 +23,7 @@ public class TaskflowService {
         this.eventPublisher = eventPublisher;
     }
 
-    @Transactional
+//    @Transactional
     public void process(StudyJobRequestedEvent event) {
 
         boolean created = executionCreator.createIfNotExists(event.jobId());

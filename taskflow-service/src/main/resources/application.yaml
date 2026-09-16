@@ -28,4 +28,9 @@ management:
         include: health,info
 
 informatica:
-  baseurl:  http://localhost:7071
+  login-url:  https://dm-ap.informaticacloud.com/ma/api/v2/user/login
+  taskflow-url: https://apse1.dm-ap.informaticacloud.com/active-bpel/rt/Taskflow1
+  baseurl:  https://dm-ap.informaticacloud.com
+  username: smdzeeshanhaider@outlook.com
+  password: Tiger@543
+  status-url: https://apse1.dm-ap.informaticacloud.com

@@ -1,5 +1,7 @@
 package com.labi.taskflowservice.client;
 
+import com.labi.taskflowservice.entity.InformaticaTaskflowStatus;
+
 public interface InformaticaClient {
     String startTaskflow(
             String customerId,
@@ -7,4 +9,6 @@ public interface InformaticaClient {
             String recipientId,
             String studyId
     );
+
+    InformaticaTaskflowStatus getTaskFlowStatus(String runId);
 }

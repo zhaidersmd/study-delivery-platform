@@ -30,4 +30,13 @@ public class TaskflowExecutionService {
 
         execution.markFailed();
     }
+
+    @Transactional
+    public void markCompleted(UUID jobId){
+    TaskflowExecution execution =  executionRepository.findByJobId(jobId)
+                .orElseThrow(() -> new IllegalStateException("Taskflow execution not found for job: " + jobId));
+    execution.markCompleted();
+    }
+
+
 }
