@@ -26,3 +26,7 @@ management:
     web:
       exposure:
         include: health,info
+
+validation:
+  output-base-folder: /secure/output/secure/output
+  output-file-name: output.csv
